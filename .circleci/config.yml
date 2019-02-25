@@ -14,6 +14,10 @@ docs_update_config: &docs_update_config
   environment:
     AWS_REGION: us-east-1
 
+release_management: &release_management
+  docker:
+    - image: golang
+
 jobs:
   setup_dependencies:
     <<: *defaults
@@ -241,6 +245,54 @@ jobs:
           command: |
             chamber exec tendermint -- start_website_build
 
+  prepare_for_release:
+    <<: *release_management
+    steps:
+      - checkout
+      - run:
+          name: Build dependencies
+          command: |
+            make tools get_vendor_deps
+      - save_cache:
+          key: v1-release-deps-{{ .Branch }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+          paths:
+            - "vendor"
+            - "/go/pkg"
+
+  build_artifacts:
+    <<: *release_management
+    parallelism: 4
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-release-deps-{{ .Branch }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: Build ${CIRCLE_NODE_INDEX}
+          command: |
+            test ${CIRCLE_NODE_INDEX:-0} == 0 && export GOOS=linux GOARCH=amd64   OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
+            test ${CIRCLE_NODE_INDEX:-0} == 1 && export GOOS=darwin GOARCH=amd64  OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
+            test ${CIRCLE_NODE_INDEX:-0} == 2 && export GOOS=windows GOARCH=amd64 OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
+            test ${CIRCLE_NODE_INDEX:-0} == 3 && export GOOS=linux GOARCH=arm     OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
+      - persist_to_workspace:
+          root: build
+          paths:
+            - "*.zip"
+
+  release_artifacts:
+    <<: *release_management
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Deploy to GitHub
+          command: |
+            python -u .circleci/sha-files.py
+            echo "TODO: Create draft"
+            echo "TODO: Upload all files"
+            echo "TODO: Publish release"
+
 workflows:
   version: 2
   test-suite:
@@ -277,3 +329,39 @@ workflows:
       - upload_coverage:
           requires:
             - test_cover
+  release:
+    jobs:
+      - prepare_for_release:
+          filters:
+#            tags:
+#              only:
+#                - /^v.*/
+            branches:
+              only:
+                - greg/release_management
+#              ignore:
+#                - /.*/
+      - build_artifacts:
+          requires:
+            - prepare_for_release
+          filters:
+#            tags:
+#              only:
+#                - /^v.*/
+            branches:
+              only:
+                - greg/release_management
+#              ignore:
+#                - /.*/
+      - release_artifacts:
+          requires:
+            - build_artifacts
+          filters:
+#            tags:
+#              only:
+#                - /^v.*/
+            branches:
+              only:
+                - greg/release_management
+#              ignore:
+#                - /.*/
