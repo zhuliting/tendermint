@@ -25,8 +25,8 @@ def zip_asset(file,destination,arcname,version,goos,goarch):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("--file", default="build/tendermint_{0}_{1}".format(os.environ.get('GOOS'),os.environ.get('GOARCH')), help="File to zip", required=True)
-  parser.add_argument("--destination", default="build", help="Destination folder for files", required=True)
+  parser.add_argument("--file", default="build/tendermint_{0}_{1}".format(os.environ.get('GOOS'),os.environ.get('GOARCH')), help="File to zip")
+  parser.add_argument("--destination", default="build", help="Destination folder for files")
   parser.add_argument("--version", default=os.environ.get('CIRCLE_TAG'), help="Version number for binary, e.g.: v1.0.0")
   parser.add_argument("--goos", default=os.environ.get('GOOS'), help="GOOS parameter")
   parser.add_argument("--goarch", default=os.environ.get('GOARCH'), help="GOARCH parameter")
