@@ -337,35 +337,29 @@ workflows:
     jobs:
       - build:
           filters:
-#            tags:
-#              only:
-#                - /^v.*/
-            branches:
+            tags:
               only:
-                - greg/release_management
-#              ignore:
-#                - /.*/
+                - /^v.*/
+            branches:
+              ignore:
+                - /.*/
       - build_artifacts:
           requires:
             - prepare_for_release
           filters:
-#            tags:
-#              only:
-#                - /^v.*/
-            branches:
+            tags:
               only:
-                - greg/release_management
-#              ignore:
-#                - /.*/
+                - /^v.*/
+            branches:
+              ignore:
+                - /.*/
       - release_artifacts:
           requires:
             - build_artifacts
           filters:
-#            tags:
-#              only:
-#                - /^v.*/
-            branches:
+            tags:
               only:
-                - greg/release_management
-#              ignore:
-#                - /.*/
+                - /^v.*/
+            branches:
+              ignore:
+                - /.*/
