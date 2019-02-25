@@ -252,6 +252,8 @@ jobs:
       - run:
           name: Build dependencies
           command: |
+            #https://github.com/golang/dep/issues/911
+            ln -sf /home/circleci/project $GOPATH/src/github.com/tendermint/tendermint
             make get_tools get_vendor_deps
       - save_cache:
           key: v1-release-deps-{{ .Branch }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
