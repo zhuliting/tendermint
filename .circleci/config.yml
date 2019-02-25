@@ -261,8 +261,7 @@ jobs:
             - "vendor"
             - "/go/pkg"
 
-  #build_artifacts:
-  build:
+  build_artifacts:
     <<: *release_management
     parallelism: 4
     steps:
@@ -292,6 +291,8 @@ jobs:
           name: Deploy to GitHub
           command: |
             python -u .circleci/sha-files.py
+            ls -la /tmp/workspace
+            cat /tmp/workspace/SHA256SUMS
             echo "TODO: Create draft"
             echo "TODO: Upload all files"
             echo "TODO: Publish release"
