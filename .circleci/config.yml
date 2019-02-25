@@ -254,7 +254,6 @@ jobs:
           name: Build dependencies
           command: |
             make get_tools get_vendor_deps
-            ls -la /go/pkg
       - save_cache:
           key: v1-release-deps-{{ .Branch }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
           paths:
@@ -335,7 +334,7 @@ workflows:
             - test_cover
   release:
     jobs:
-      - build:
+      - prepare_for_release:
           filters:
             tags:
               only:
