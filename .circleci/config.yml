@@ -252,7 +252,7 @@ jobs:
       - run:
           name: Build dependencies
           command: |
-            make tools get_vendor_deps
+            make get_tools get_vendor_deps
       - save_cache:
           key: v1-release-deps-{{ .Branch }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
           paths:
