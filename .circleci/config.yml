@@ -260,8 +260,7 @@ jobs:
             - "vendor"
 #            - "/go/pkg"
 
-  build:
-#  build_artifacts:
+  build_artifacts:
     <<: *release_management
     parallelism: 4
     steps:
@@ -272,10 +271,11 @@ jobs:
       - run:
           name: Build artifact
           command: |
-            test ${CIRCLE_NODE_INDEX:-0} == 0 && export CIRCLE_TAG=v0.0.0 GOOS=linux GOARCH=amd64   OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
-            test ${CIRCLE_NODE_INDEX:-0} == 1 && export CIRCLE_TAG=v0.0.0 GOOS=darwin GOARCH=amd64  OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
-            test ${CIRCLE_NODE_INDEX:-0} == 2 && export CIRCLE_TAG=v0.0.0 GOOS=windows GOARCH=amd64 OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
-            test ${CIRCLE_NODE_INDEX:-0} == 3 && export CIRCLE_TAG=v0.0.0 GOOS=linux GOARCH=arm     OUTPUT=build/tendermint_$GOOS_$GOARCH && make build && python -u .circleci/zip-file.py
+# Todo: Remove CIRCLE_TAG
+            if test ${CIRCLE_NODE_INDEX:-0} == 0 ;then export CIRCLE_TAG=v0.0.0 GOOS=linux GOARCH=amd64   && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 1 ;then export CIRCLE_TAG=v0.0.0 GOOS=darwin GOARCH=amd64  && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 2 ;then export CIRCLE_TAG=v0.0.0 GOOS=windows GOARCH=amd64 && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 3 ;then export CIRCLE_TAG=v0.0.0 GOOS=linux GOARCH=arm     && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
       - persist_to_workspace:
           root: build
           paths:
