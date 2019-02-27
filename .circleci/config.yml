@@ -272,10 +272,11 @@ jobs:
           name: Build artifact
           command: |
 # Todo: Remove CIRCLE_TAG
-            if test ${CIRCLE_NODE_INDEX:-0} == 0 ;then export CIRCLE_TAG=v0.0.0 GOOS=linux GOARCH=amd64   && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
-            if test ${CIRCLE_NODE_INDEX:-0} == 1 ;then export CIRCLE_TAG=v0.0.0 GOOS=darwin GOARCH=amd64  && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
-            if test ${CIRCLE_NODE_INDEX:-0} == 2 ;then export CIRCLE_TAG=v0.0.0 GOOS=windows GOARCH=amd64 && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
-            if test ${CIRCLE_NODE_INDEX:-0} == 3 ;then export CIRCLE_TAG=v0.0.0 GOOS=linux GOARCH=arm     && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test -z "${CIRCLE_TAG}" ;then export CIRCLE_TAG=v0.0.0 ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 0 ;then export GOOS=linux GOARCH=amd64   && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 1 ;then export GOOS=darwin GOARCH=amd64  && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 2 ;then export GOOS=windows GOARCH=amd64 && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 3 ;then export GOOS=linux GOARCH=arm     && export OUTPUT=build/tendermint_${GOOS}_${GOARCH} && make build && python -u .circleci/zip-file.py ;fi
       - persist_to_workspace:
           root: build
           paths:
@@ -290,8 +291,8 @@ jobs:
       - run:
           name: Deploy to GitHub
           command: |
-            python -u .circleci/sha-files.py
             ls -la /tmp/workspace
+            python -u .circleci/sha-files.py
             cat /tmp/workspace/SHA256SUMS
             echo "TODO: Create draft"
             echo "TODO: Upload all files"
