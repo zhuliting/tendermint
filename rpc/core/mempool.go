@@ -175,10 +175,10 @@ func BroadcastTxCommit(ctx *rpctypes.Context, tx types.Tx) (*ctypes.ResultBroadc
 	}
 
 	// Subscribe to tx being committed in block.
-	ctx, cancel := context.WithTimeout(context.Background(), subscribeTimeout)
+	subCtx, cancel := context.WithTimeout(context.Background(), subscribeTimeout)
 	defer cancel()
 	q := types.EventQueryTxFor(tx)
-	deliverTxSub, err := eventBus.Subscribe(ctx, subscriber, q)
+	deliverTxSub, err := eventBus.Subscribe(subCtx, subscriber, q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to subscribe to tx")
 		logger.Error("Error on broadcast_tx_commit", "err", err)

@@ -265,8 +265,10 @@ type Context struct {
 func (ctx *Context) RemoteAddr() string {
 	if ctx.HTTPReq != nil {
 		return ctx.HTTPReq.RemoteAddr
+	} else if ctx.WSConn != nil {
+		return ctx.WSConn.GetRemoteAddr()
 	}
-	return ctx.WSConn.GetRemoteAddr()
+	return ""
 }
 
 //----------------------------------------
