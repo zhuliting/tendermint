@@ -137,8 +137,6 @@ func TestParseJSONArray(t *testing.T) {
 }
 
 func TestParseJSONRPC(t *testing.T) {
-	assert := assert.New(t)
-
 	demo := func(height int, name string) {}
 	call := NewRPCFunc(demo, "height,name")
 	cdc := amino.NewCodec()
@@ -162,14 +160,14 @@ func TestParseJSONRPC(t *testing.T) {
 	for idx, tc := range cases {
 		i := strconv.Itoa(idx)
 		data := []byte(tc.raw)
-		vals, err := jsonParamsToArgs(call, cdc, data, 0)
+		vals, err := jsonParamsToArgs(call, cdc, data)
 		if tc.fail {
-			assert.NotNil(err, i)
+			assert.NotNil(t, err, i)
 		} else {
-			assert.Nil(err, "%s: %+v", i, err)
-			if assert.Equal(2, len(vals), i) {
-				assert.Equal(tc.height, vals[0].Int(), i)
-				assert.Equal(tc.name, vals[1].String(), i)
+			assert.Nil(t, err, "%s: %+v", i, err)
+			if assert.Equal(t, 2, len(vals), i) {
+				assert.Equal(t, tc.height, vals[0].Int(), i)
+				assert.Equal(t, tc.name, vals[1].String(), i)
 			}
 		}
 
@@ -177,7 +175,6 @@ func TestParseJSONRPC(t *testing.T) {
 }
 
 func TestParseURI(t *testing.T) {
-
 	demo := func(height int, name string) {}
 	call := NewRPCFunc(demo, "height,name")
 	cdc := amino.NewCodec()
