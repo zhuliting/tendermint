@@ -364,3 +364,14 @@ workflows:
             branches:
               ignore:
                 - /.*/
+  release_testing:
+    jobs:
+      - prepare_for_release
+      - build_artifacts:
+         requires:
+           - prepare_for_release
+      - release_artifacts:
+         requires:
+           - prepare_for_release
+           - build_artifacts
+
