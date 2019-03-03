@@ -290,12 +290,20 @@ jobs:
       - run:
           name: Deploy to GitHub
           command: |
+            # Todo: Remove CIRCLE_TAG
+            if test -z "${CIRCLE_TAG}" ;then export CIRCLE_TAG=v0.0.0 ;fi
             ls -la /tmp/workspace
             python -u .circleci/sha-files.py
             cat /tmp/workspace/SHA256SUMS
-            echo "TODO: Create draft"
-            echo "TODO: Upload all files"
-            echo "TODO: Publish release"
+            export RELEASE_ID="`python -u .circleci/github-draft.py`"
+            echo "Release ID: ${RELEASE_ID}"
+            # Todo: Remove CIRCLE_TAG
+            if test -z "${CIRCLE_TAG}" ;then export CIRCLE_TAG=v0.0.0 ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 0 ;then export GOOS=linux GOARCH=amd64   && python -u .circleci/github-upload.py --id "${RELEASE_ID}" --file /tmp/workspace/tendermint_${CIRCLE_TAG}_${GOOS}_${GOARCH}.zip ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 1 ;then export GOOS=darwin GOARCH=amd64  && python -u .circleci/github-upload.py --id "${RELEASE_ID}" --file /tmp/workspace/tendermint_${CIRCLE_TAG}_${GOOS}_${GOARCH}.zip ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 2 ;then export GOOS=windows GOARCH=amd64 && python -u .circleci/github-upload.py --id "${RELEASE_ID}" --file /tmp/workspace/tendermint_${CIRCLE_TAG}_${GOOS}_${GOARCH}.zip ;fi
+            if test ${CIRCLE_NODE_INDEX:-0} == 3 ;then export GOOS=linux GOARCH=arm     && python -u .circleci/github-upload.py --id "${RELEASE_ID}" --file /tmp/workspace/tendermint_${CIRCLE_TAG}_${GOOS}_${GOARCH}.zip ;fi
+            python -u .circleci/github-publish.py --id "${RELEASE_ID}"
 
 workflows:
   version: 2
@@ -355,6 +363,7 @@ workflows:
                 - /.*/
       - release_artifacts:
           requires:
+            - prepare_for_release
             - build_artifacts
           filters:
             tags:
